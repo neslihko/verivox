@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model UserAccount {
+  id            String          @id @default(uuid())
+  email         String          @unique
+  profiles      Profile[]
+  Person        Person[]
+  Address       Address[]
+  PaymentMethod PaymentMethod[]
+  Meter         Meter[]
+}
+
+model Profile {
+  id             String          @id @default(uuid())
+  userAccountId  String
+  name           String
+  isPrimary      Boolean         @default(false)
+  userAccount    UserAccount     @relation(fields: [userAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  persons        Person[]
+  addresses      Address[]
+  paymentMethods PaymentMethod[]
+  Meter          Meter[]
+}
+
+model Person {
+  id            String      @id @default(uuid())
+  profileId     String
+  userAccountId String
+  salutation    String
+  firstName     String
+  lastName      String
+  birthdate     DateTime
+  maritalStatus String
+  occupation    String
+  mobilePhone   String
+  phone         String
+  isPrimary     Boolean     @default(false)
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile       Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Address {
+  id                String      @id @default(uuid())
+  profileId         String
+  userAccountId     String
+  name              String
+  street            String
+  houseNumber       String
+  postalCode        String
+  locationId        String
+  city              String
+  isPrimaryMailing  Boolean     @default(false)
+  isPrimaryBilling  Boolean     @default(false)
+  isPrimaryShipping Boolean     @default(false)
+  userAccount       UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile           Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  meters            Meter[]
+}
+
+model PaymentMethod {
+  id            String      @id @default(uuid())
+  profileId     String
+  userAccountId String
+  name          String
+  iban          String
+  bic           String
+  isPrimary     Boolean     @default(false)
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile       Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
+
+model Meter {
+  id            String      @id @default(uuid())
+  addressId     String
+  profileId     String
+  userAccountId String
+  name          String
+  type          String
+  number        String
+  usage         String
+  userAccount   UserAccount @relation(fields: [userAccountId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  profile       Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  address       Address     @relation(fields: [addressId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+}
